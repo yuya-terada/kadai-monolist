@@ -42,7 +42,7 @@ use App\Item;
         ]);
     }
     
-    public function show($id)
+   public function show($id)
     {
       $item = Item::find($id);
       $want_users = $item->want_users;
