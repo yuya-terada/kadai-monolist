@@ -17,6 +17,9 @@ class WelcomeController extends Controller
      */
     public function index()
     {
-        echo test
+        $items = Item::orderBy('updated_at', 'desc')->paginate(20);
+        return view('welcome', [
+            'items' => $items,
+        ]);
     }
 }
