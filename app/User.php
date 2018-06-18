@@ -30,21 +30,21 @@ class User extends Authenticatable
         return $this->belongsToMany(Item::class)->withPivot('type')->withTimestamps();
     }
 
-    public function want_items()
+     public function want_items()
     {
         return $this->items()->where('type', 'want');
     }
 
     public function want($itemId)
     {
-        // 既に Want しているかの確認
+        // Is the user already "want"?
         $exist = $this->is_wanting($itemId);
 
         if ($exist) {
-            // 既に Want していれば何もしない
+            // do nothing
             return false;
         } else {
-            // 未 Want であれば Want する
+            // do "want"
             $this->items()->attach($itemId, ['type' => 'want']);
             return true;
         }
@@ -52,14 +52,14 @@ class User extends Authenticatable
 
     public function dont_want($itemId)
     {
-        // 既に Want しているかの確認
+        // Is the user already "want"?
         $exist = $this->is_wanting($itemId);
 
         if ($exist) {
-            // 既に Want していれば Want を外す
+            // remove "want"
             \DB::delete("DELETE FROM item_user WHERE user_id = ? AND item_id = ? AND type = 'want'", [\Auth::user()->id, $itemId]);
         } else {
-            // 未 Want であれば何もしない
+            // do nothing
             return false;
         }
     }
@@ -71,6 +71,51 @@ class User extends Authenticatable
             return $item_id_exists;
         } else {
             $item_code_exists = $this->want_items()->where('code', $itemIdOrCode)->exists();
+            return $item_code_exists;
+        }
+    }
+    
+     public function have_items()
+    {
+        return $this->items()->where('type', 'have');
+    }
+
+    public function have($itemId)
+    {
+        // Is the user already "have"?
+        $exist = $this->is_haveing($itemId);
+
+        if ($exist) {
+            // do nothing
+            return false;
+        } else {
+            // do "have"
+            $this->items()->attach($itemId, ['type' => 'have']);
+            return true;
+        }
+    }
+
+    public function dont_have($itemId)
+    {
+        // Is the user already "have"?
+        $exist = $this->is_haveing($itemId);
+
+        if ($exist) {
+            // remove "have"
+            \DB::delete("DELETE FROM item_user WHERE user_id = ? AND item_id = ? AND type = 'have'", [\Auth::user()->id, $itemId]);
+        } else {
+            // do nothing
+            return false;
+        }
+    }
+
+    public function is_haveing($itemIdOrCode)
+    {
+        if (is_numeric($itemIdOrCode)) {
+            $item_id_exists = $this->have_items()->where('item_id', $itemIdOrCode)->exists();
+            return $item_id_exists;
+        } else {
+            $item_code_exists = $this->have_items()->where('code', $itemIdOrCode)->exists();
             return $item_code_exists;
         }
     }
